@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="utf-8">
+	<title>Poymi</title>
+  	<link rel="stylesheet" href="themes/myTheme.css" />
+  	<link rel="stylesheet" href="themes/jquery.mobile.icons.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.structure-1.4.2.css" /> 
+	<script type="text/javascript" src="//cdn.voximplant.com/voximplant.min.js"></script>
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script> 
+	<script src="http://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js"></script>
+
+	<!-- Voximplant script -->
+
+	<script type="text/javascript">
+        var initialized = false,
+                loggedIn = false,
+                connected = false,
+                voxImplant = VoxImplant.getInstance();
+ 
+        // Add event listeners
+        voxImplant.addEventListener(VoxImplant.Events.SDKReady, handleSDKReady);
+        voxImplant.addEventListener(VoxImplant.Events.ConnectionEstablished, handleConnectionEstablished);
+        voxImplant.addEventListener(VoxImplant.Events.AuthResult, handleAuthResult);
+ 
+        function handleSDKReady() {
+                initialized = true;
+        logMessage("VoxImplant SDK ready");
+                // Connection with VoxImplant Cloud can be established now
+        voxImplant.connect();
+        }
+ 
+        function handleConnectionEstablished() {
+                connected = true;
+                logMessage("Connection established");
+                login();
+     	}
+ 
+        function handleAuthResult(e) {
+        logMessage("AuthResult: "+e.result);
+                if (e.result) {
+                        // Logged in successfully
+                        loggedIn = true;
+                        makeCall();
+                } else {
+                        logMessage("Authorization failed. Please specify correct username and password");
+                }
+        }
+ 
+        function login(){
+                // Authorization required before we can use other functions
+                voxImplant.login("dimmortal@mp3call.poymi.voximplant.com", "1234567890");
+        }
+ 
+        function logMessage(msg) {
+                document.getElementById("log").innerHTML += msg + "\n";
+        }
+ 
+        function makeCall(){
+                // Number isn't important - our simple VoxEngine script will just playback the audio file
+        var call = voxImplant.call("0000");
+                // Add event listeners for call events
+                call.addEventListener(VoxImplant.CallEvents.Connected, handleCallConnected);
+                call.addEventListener(VoxImplant.CallEvents.Failed, handleCallFailed);
+                call.addEventListener(VoxImplant.CallEvents.Disconnected, handleCallDisconnected);
+        }
+ 
+        function handleCallConnected() {
+                logMessage("Call Connected");
+        }
+ 
+        function handleCallFailed(e) {
+                logMessage("Call Failed. Code: "+e.code+" Reason: "+e.reason);
+        }
+ 
+        function handleCallDisconnected() {
+                logMessage("Call Disconnected");
+        }
+ 
+        function testCall() {
+                // Initialize SDK if not it's not initialized yet
+                if (!initialized) voxImplant.init();
+                else {
+                        // Establish connection with VoxImplant Cloud if it's not established yet
+                if (!voxImplant.connected()) voxImplant.connect();
+                        else {
+                                // Login if not logged in yet, otherwise - make a call
+                                if (!loggedIn) login();
+                                else makeCall();
+                }
+        }
+        }
+	</script>
+
+</head>
+<body>	
+	
+	<!--					mainPage (login)					-->
+
+	<div data-role="page" data-theme="c" id="loginPage">
+
+		<div data-role="panel" data-display="reveal" id="settingsPanel" >
+			<ul data-role="listview">
+				<h3>Настройки</h3>
+				<li>светлая тема</li>
+				<li>тёмная тема</li>
+			</ul>
+		</div>
+		<div data-role="header">
+			<a href="#settingsPanel" data-icon="bars">Menu</a>
+			<h1>Poymi</h1>
+		</div>
+
+		<div data-role="content" class="ui-body-d ui-content">
+			<h2>Добро пожаловать</h2>
+			<p>
+				<label for="text-basic">Login:</label>
+				<input type="text" name="text-basic" id="text-basic" value="">
+			</p>
+			<p>
+				<label for="password">Password:</label>
+				<input type="password" name="password" id="password" value="" autocomplete="off">
+			</p>
+			<a href="#rolePage" data-transition="slide"><input type="button" value="Submit"></a>
+		</div>
+
+		<div data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+	            <ul>
+	                <li><a href="#loginPage" data-icon="grid" class="ui-btn-active" data-transition="fade">Login</a></li>
+	                <li><a href="#regPage" data-icon="star" data-transition="fade">Registration</a></li>
+	                <li><a href="#aboutPage" data-icon="gear" data-transition="fade">About</a></li>
+	            </ul>
+        	</div>
+		</div>
+
+	</div>
+	
+	<!--					mainPage (register)					-->
+
+	<div data-role="page" data-theme="c" id="regPage" data-add-back-btn="false">
+
+		<div data-role="header">
+			<a href="#settingsPanel" data-icon="gear">Menu</a>
+			<h1>Poymi</h1>
+		</div>
+
+		<div data-role="content" class="ui-body-d ui-content"><!-- registration -->
+			<h2>Регистрация</h2>
+			<p>
+				<label for="text-basic">Имя:</label>
+				<input type="text" name="text-basic" id="text-basic" value="">
+			</p>
+			<p>
+				<label for="text-basic">Фамилия:</label>
+				<input type="text" name="text-basic" id="text-basic" value="">
+			</p>
+			<p>
+				<label for="text-basic">Login:</label>
+				<input type="text" name="text-basic" id="text-basic" value="">
+			</p>
+			<p>
+				<label for="text-basic">Email:</label>
+				<input type="text" name="text-basic" id="text-basic" value="">
+			</p>
+			<p>
+				<label for="password">Password:</label>
+				<input type="password" name="password" id="password" value="" autocomplete="off">
+			</p>
+			<a href="#rolePage" data-transition="slide"><input type="button" value="Submit"></a>
+		</div><!-- /content -->
+
+		<div data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+	            <ul>
+	                <li><a href="#loginPage" data-icon="grid" data-transition="fade">Login</a></li>
+	                <li><a href="#regPage" data-icon="star" class="ui-btn-active" data-transition="fade">Registration</a></li>
+	                <li><a href="#aboutPage" data-icon="gear" data-transition="fade">About</a></li>
+	            </ul>
+        	</div>
+		</div>
+
+	</div>
+	
+	<!--					mainPage (about)					-->
+
+	<div data-role="page" data-theme="c" id="aboutPage">
+
+		<div data-role="header">
+			<h1>Poymi</h1>
+		</div>
+
+		<div data-role="content" id="nav_reg">
+			<h2>О нас и как это работает</h2>
+		</div>
+
+		<div data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+	            <ul>
+	                <li><a href="#loginPage" data-icon="grid" data-transition="fade">Login</a></li>
+	                <li><a href="#regPage" data-icon="star" data-transition="fade">Registration</a></li>
+	                <li><a href="#aboutPage" class="ui-btn-active" data-icon="gear" data-transition="fade">About</a></li>
+	            </ul>
+        	</div>
+		</div>
+
+	</div>
+	
+	<!--					rolePage					-->
+	
+	<div data-role="page" data-theme="c" id="rolePage">
+		
+		<div data-role="header" data-add-back-btn="false">
+			<a href="#loginPage" class="ui-btn ui-icon-home ui-btn-icon-notext ui-corner-all">No text</a>
+			<h1>Выбор роли</h1>
+		</div>
+
+		<div data-role="content">
+
+			<div data-role="navbar">
+			    <ul>
+			        <li><a href="#clientPage" data-transition="pop" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="popupClient">Клиент</a></li>
+			        
+			        <li><a href="#translaterPage" data-transition="pop" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-rel="popupTranslater">Переводчик</a></li>
+			    </ul>
+			</div>
+		</div>
+
+		<!--<div data-role="footer" data-position="fixed">
+			<h4>Page Footer</h4>
+		</div>-->
+		
+	</div>
+
+	<!--					clientPage					-->
+
+	<div data-role="page" data-theme="c" id="clientPage">
+
+		<div data-role="header" data-add-back-btn="true">
+			<h1>#Имя (клиент)</h1>
+		</div>
+
+		<div data-role="content" id="nav_reg">
+			<h2>Выберите язык, который вы хотите понять, и найдите переводчика</h2>
+			<select name="select-choice-1" id="select-choice-1">
+			    <option value="standard">Английский</option>
+			    <option value="rush">Немецкий</option>
+			    <option value="express">Французский</option>
+			    <option value="overnight">Итальянский</option>
+			</select>
+			<a href="javascript:testCall()">Make Call</a><br/>
+        	<textarea style="height: 400px" id="log">
+    		</textarea>
+		</div>
+
+		<!--<div data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+	            <ul>
+	                <li><a href="#loginPage" data-icon="grid" data-transition="fade">Login</a></li>
+	                <li><a href="#regPage" data-icon="star" data-transition="fade">Registration</a></li>
+	                <li><a href="#aboutPage" class="ui-btn-active" data-icon="gear" data-transition="fade">About</a></li>
+	            </ul>
+        	</div>
+		</div>-->
+
+	</div>
+	
+	<!--					translaterPage					-->
+
+	<div data-role="page" data-theme="c" id="translaterPage">
+
+		<div data-role="header" data-add-back-btn="true">
+			<h1>#Имя (переводчик)</h1>
+		</div>
+
+		<div data-role="content" id="nav_reg">
+			<h2>Выберите язык, который вы хотите помочь перевести, и встаньте в очередь</h2>
+			<select name="select-choice-1" id="select-choice-1">
+			    <option value="standard">Английский</option>
+			    <option value="rush">Немецкий</option>
+			    <option value="express">Французский</option>
+			    <option value="overnight">Итальянский</option>
+			</select>
+		</div>
+
+		<!--<div data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+	            <ul>
+	                <li><a href="#loginPage" data-icon="grid" data-transition="fade">Login</a></li>
+	                <li><a href="#regPage" data-icon="star" data-transition="fade">Registration</a></li>
+	                <li><a href="#aboutPage" class="ui-btn-active" data-icon="gear" data-transition="fade">About</a></li>
+	            </ul>
+        	</div>
+		</div>-->
+
+	</div>
+
+	<!--					dialogPage					-->
+
+	<div data-role="page" data-theme="c" id="dialogPage">
+
+		<div data-role="header" data-add-back-btn="true">
+			<h1>#Диалог</h1>
+		</div>
+
+		<div data-role="content" id="nav_reg">
+			<h2>Выберите язык, который вы хотите помочь перевести</h2>
+			<select name="select-choice-1" id="select-choice-1">
+			    <option value="standard">Английский</option>
+			    <option value="rush">Немецкий</option>
+			    <option value="express">Французский</option>
+			    <option value="overnight">Итальянский</option>
+			</select>
+		</div>
+
+		<!--<div data-role="footer" data-position="fixed">
+			<div data-role="navbar">
+	            <ul>
+	                <li><a href="#loginPage" data-icon="grid" data-transition="fade">Login</a></li>
+	                <li><a href="#regPage" data-icon="star" data-transition="fade">Registration</a></li>
+	                <li><a href="#aboutPage" class="ui-btn-active" data-icon="gear" data-transition="fade">About</a></li>
+	            </ul>
+        	</div>
+		</div>-->
+
+	</div>	
+
+</body>
+</html>
